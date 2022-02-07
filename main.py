@@ -10,7 +10,7 @@ if __name__ == '__main__':
     TOKEN = os.getenv("TOKEN")
     print('Access to environment variable complete.')
 
-    a = int(input('Please enter first integer: '))
-    b = int(input('Please enter second integer: '))
+    a = 7
+    b = 3
     c = suma(a, b)
     print('Sum is: ' + str(c))
