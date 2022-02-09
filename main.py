@@ -1,4 +1,5 @@
 import os
+import time
 
 def suma(a, b):
     total = a + b
@@ -7,10 +8,12 @@ def suma(a, b):
 
 
 if __name__ == '__main__':
-    TOKEN = os.getenv("TOKEN")
-    print('Access to environment variable complete.')
+    while True:
+        time.sleep(1)
+        TOKEN = os.getenv("TOKEN")
+        print('Access to environment variable complete.')
 
-    a = 7
-    b = 3
-    c = suma(a, b)
-    print('Sum is: ' + str(c))
+        a = 7
+        b = 3
+        c = suma(a, b)
+        print('Sum is: ' + str(c))
