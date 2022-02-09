@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Python unit test
         run: |
-          python3.9 test_main.py
+          python3 test_main.py
 
   deploy:
     runs-on: ubuntu-latest
