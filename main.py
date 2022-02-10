@@ -1,6 +1,7 @@
 import os
 import time
 
+
 def suma(a, b):
     total = a + b
 
