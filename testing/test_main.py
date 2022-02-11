@@ -1,4 +1,4 @@
-from main import suma
+from cicd.main import suma
 
 
 def test_positive_negative_result_zero():
