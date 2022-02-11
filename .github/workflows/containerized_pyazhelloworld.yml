@@ -1,0 +1,68 @@
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+name: Containerized PyAz Helloworld
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        
+        steps:
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@v2
+
+        - name: Set up Python version
+          uses: actions/setup-python@v2.2.2
+          with:
+            python-version: ${{ env.PYTHON_VERSION }}
+            cache: 'pip'
+
+        - name: Create and start virtual environment
+          run: |
+            python -m venv venv
+            source venv/bin/activate
+            
+        - name: Install dependencies
+          run: pip install -r requirements.txt
+          
+        - name: Test with pytest
+          run: |
+            pytest
+    
+    build-and-deploy:
+        needs: test
+        runs-on: ubuntu-latest
+        
+        steps:
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@v2
+          
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+        - name: 'Build and push image'
+          uses: azure/docker-login@v1
+          with:
+            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        - run: |
+            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/pyazhelloworld:${{ github.sha }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/pyazhelloworld:${{ github.sha }}
+
+        - name: 'Deploy to Azure Container Instances'
+          uses: 'azure/aci-deploy@v1'
+          with:
+            resource-group: ${{ secrets.RESOURCE_GROUP }}
+            dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+            image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/pyazhelloworld:${{ github.sha }}
+            registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            name: aci-pyazhelloworld
+            location: 'west us'
